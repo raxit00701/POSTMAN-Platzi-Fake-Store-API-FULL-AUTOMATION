@@ -1,0 +1,242 @@
+pipeline {
+  agent any
+  options { timestamps(); disableConcurrentBuilds() }
+  environment {
+    // === Paths you gave ===
+    COLL_DIR       = 'E:\\Postman Project\\Collections'
+    CSV_DIR        = 'E:\\Postman Project\\Csv files'
+    ENV_NAME       = 'QA.postman_environment.json'
+
+    // === Newman under your user profile ===
+    NEWMAN_HOME    = 'C:\\Users\\raxit'
+    NEWMAN_BIN     = 'C:\\Users\\raxit\\AppData\\Roaming\\npm\\newman.cmd'
+
+    // === Allure outputs in workspace ===
+    ALLURE_RESULTS = 'allure-results'
+    ALLURE_REPORT  = 'allure-report'
+  }
+
+  stages {
+    stage('Prep & Cleanup') {
+      steps {
+        ansiColor('xterm') {
+          bat '''
+            @echo off
+            setlocal EnableExtensions EnableDelayedExpansion
+            chcp 65001 >nul
+
+            echo === Verify Newman CLI ===
+            if exist "%NEWMAN_BIN%" (
+              call "%NEWMAN_BIN%" -v
+            ) else (
+              echo [ERROR] Could not find newman at: %NEWMAN_BIN%
+              echo Install globally: npm i -g newman newman-reporter-allure newman-reporter-htmlextra
+              exit /b 1
+            )
+
+            echo === Ensure Allure reporter is available (best-effort) ===
+            call npm ls -g newman-reporter-allure >nul 2>&1 || call npm i -g newman-reporter-allure
+
+            echo === Ensure htmlextra reporter is available (best-effort) ===
+            call npm ls -g newman-reporter-htmlextra >nul 2>&1 || call npm i -g newman-reporter-htmlextra
+
+            echo === Validate paths ===
+            if not exist "%COLL_DIR%\\." (
+              echo [ERROR] Collections folder not found: %COLL_DIR%
+              exit /b 1
+            )
+            if not exist "%CSV_DIR%\\." (
+              echo [ERROR] CSV folder not found: %CSV_DIR%
+              exit /b 1
+            )
+            if not exist "%COLL_DIR%\\%ENV_NAME%" (
+              echo [ERROR] Environment file not found: %COLL_DIR%\\%ENV_NAME%
+              exit /b 1
+            )
+
+            echo === Clean previous Allure outputs (per requirement) ===
+            if exist "%WORKSPACE%\\%ALLURE_RESULTS%\\." rmdir /s /q "%WORKSPACE%\\%ALLURE_RESULTS%"
+            if exist "%WORKSPACE%\\%ALLURE_REPORT%\\."  rmdir /s /q "%WORKSPACE%\\%ALLURE_REPORT%"
+            mkdir "%WORKSPACE%\\%ALLURE_RESULTS%"
+
+            echo === Clean previous htmlextra outputs (per requirement) ===
+            set "HTML_DIR=%WORKSPACE%\\newman-reports"
+            if exist "%HTML_DIR%\\." rmdir /s /q "%HTML_DIR%"
+            mkdir "%HTML_DIR%"
+
+            REM === Build Allure environment.properties (envm, creator, platform) ===
+            for %%A in ("%COLL_DIR%\\%ENV_NAME%") do set "ENV_BASE=%%~nA"
+            for /f "tokens=1 delims=." %%B in ("%ENV_BASE%") do set "ENVM=%%B"
+            if not defined ENVM set "ENVM=%ENV_NAME%"
+            if not defined USERNAME set "USERNAME=unknown-user"
+            set "PLATFORM=%OS%-%PROCESSOR_ARCHITECTURE%"
+            (
+              echo envm=%ENVM%
+              echo creator=%USERNAME%
+              echo platform=%PLATFORM%
+            ) > "%WORKSPACE%\\%ALLURE_RESULTS%\\environment.properties"
+            echo === environment.properties ===
+            type "%WORKSPACE%\\%ALLURE_RESULTS%\\environment.properties"
+
+            echo === Summary ===
+            echo COLL_DIR   = "%COLL_DIR%"
+            echo CSV_DIR    = "%CSV_DIR%"
+            echo ENV_FILE   = "%COLL_DIR%\\%ENV_NAME%"
+            echo NEWMAN_BIN = "%NEWMAN_BIN%"
+            echo RESULTS    = "%WORKSPACE%\\%ALLURE_RESULTS%"
+            echo HTML_DIR   = "%HTML_DIR%"
+          '''
+        }
+      }
+    }
+
+    stage('Run: All Collections with QA Environment') {
+      steps {
+        ansiColor('xterm') {
+          catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+            bat '''
+              @echo off
+              setlocal EnableExtensions EnableDelayedExpansion
+              set "ANY_FAIL=0"
+              set "HTML_DIR=%WORKSPACE%\\newman-reports"
+
+              for %%F in ("%COLL_DIR%\\*.postman_collection.json") do (
+                echo.
+                echo Running collection: %%~nxF
+                call "%NEWMAN_BIN%" run "%%~fF" ^
+                  -e "%COLL_DIR%\\%ENV_NAME%" ^
+                  -r cli,allure,htmlextra ^
+                  --reporter-allure-export "%WORKSPACE%\\%ALLURE_RESULTS%" ^
+                  --reporter-htmlextra-export "%HTML_DIR%\\%%~nF__%BUILD_NUMBER%.html"
+                if errorlevel 1 (
+                  echo [WARN] Newman failed for collection: %%~nxF
+                  set "ANY_FAIL=1"
+                )
+              )
+
+              if "%ANY_FAIL%"=="1" (
+                echo [SUMMARY] One or more collections failed - marking stage UNSTABLE/FAILURE
+                exit /b 1
+              )
+            '''
+          }
+        }
+      }
+    }
+
+    stage('Run: CSV — Product Creation folder (auto-iterations)') {
+      steps {
+        ansiColor('xterm') {
+          catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+            bat '''
+              @echo off
+              setlocal EnableExtensions EnableDelayedExpansion
+
+              set "FOLDER_NAME=Csv driven Product creation"
+              set "CSV_FILE=%CSV_DIR%\\Create_a_product.csv"
+              set "HTML_DIR=%WORKSPACE%\\newman-reports"
+
+              if not exist "%CSV_FILE%" (
+                echo [ERROR] CSV not found: %CSV_FILE%
+                exit /b 1
+              )
+
+              echo === Locate a collection that contains folder: "%FOLDER_NAME%" ===
+              set "MATCHED_COLLECTION="
+
+              for %%F in ("%COLL_DIR%\\*.postman_collection.json") do (
+                findstr /m /c:"\\"name\\": \\"%FOLDER_NAME%\\\"" "%%~fF" >nul 2>&1
+                if not errorlevel 1 (
+                  set "MATCHED_COLLECTION=%%~fF"
+                  goto :found
+                )
+              )
+
+              echo [ERROR] Could not find a collection containing folder "%FOLDER_NAME%"
+              exit /b 1
+
+              :found
+              echo Using collection: %MATCHED_COLLECTION%
+              echo Running folder with CSV - iterations equal to rows in CSV
+              call "%NEWMAN_BIN%" run "%MATCHED_COLLECTION%" ^
+                -e "%COLL_DIR%\\%ENV_NAME%" ^
+                --folder "%FOLDER_NAME%" ^
+                -d "%CSV_FILE%" ^
+                -r cli,allure,htmlextra ^
+                --reporter-allure-export "%WORKSPACE%\\%ALLURE_RESULTS%" ^
+                --reporter-htmlextra-export "%HTML_DIR%\\Product_Creation__%BUILD_NUMBER%.html"
+              if errorlevel 1 (
+                echo [ERROR] Newman failed for folder "%FOLDER_NAME%"
+                exit /b 1
+              )
+            '''
+          }
+        }
+      }
+    }
+
+    stage('Run: CSV — Users unhappy path folder (auto-iterations)') {
+      steps {
+        ansiColor('xterm') {
+          catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+            bat '''
+              @echo off
+              setlocal EnableExtensions EnableDelayedExpansion
+
+              set "FOLDER_NAME=Users unhappy path"
+              set "CSV_FILE=%CSV_DIR%\\Create_a_User.csv"
+              set "HTML_DIR=%WORKSPACE%\\newman-reports"
+
+              if not exist "%CSV_FILE%" (
+                echo [ERROR] CSV not found: %CSV_FILE%
+                exit /b 1
+              )
+
+              echo === Locate a collection that contains folder: "%FOLDER_NAME%" ===
+              set "MATCHED_COLLECTION="
+
+              for %%F in ("%COLL_DIR%\\*.postman_collection.json") do (
+                findstr /m /c:"\\"name\\": \\"%FOLDER_NAME%\\\"" "%%~fF" >nul 2>&1
+                if not errorlevel 1 (
+                  set "MATCHED_COLLECTION=%%~fF"
+                  goto :found
+                )
+              )
+
+              echo [ERROR] Could not find a collection containing folder "%FOLDER_NAME%"
+              exit /b 1
+
+              :found
+              echo Using collection: %MATCHED_COLLECTION%
+              echo Running folder with CSV - iterations equal to rows in CSV
+              call "%NEWMAN_BIN%" run "%MATCHED_COLLECTION%" ^
+                -e "%COLL_DIR%\\%ENV_NAME%" ^
+                --folder "%FOLDER_NAME%" ^
+                -d "%CSV_FILE%" ^
+                -r cli,allure,htmlextra ^
+                --reporter-allure-export "%WORKSPACE%\\%ALLURE_RESULTS%" ^
+                --reporter-htmlextra-export "%HTML_DIR%\\Users_Unhappy_Path__%BUILD_NUMBER%.html"
+              if errorlevel 1 (
+                echo [ERROR] Newman failed for folder "%FOLDER_NAME%"
+                exit /b 1
+              )
+            '''
+          }
+        }
+      }
+    }
+  }
+
+  post {
+    always {
+      allure([
+        includeProperties: false,
+        jdk: '',
+        properties: [],
+        reportBuildPolicy: 'ALWAYS',
+        results: [[path: 'allure-results']]
+      ])
+      echo 'Pipeline finished.'
+    }
+  }
+}

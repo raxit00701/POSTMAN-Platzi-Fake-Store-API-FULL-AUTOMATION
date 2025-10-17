@@ -1,0 +1,4 @@
+level: log, messages: Generated {{New Category}}:,Eco Essentials
+level: log, messages: Outgoing payload:,[object Object]
+level: log, messages: ✅ Created category response:,[object Object]
+level: log, messages: 💾 Saved:,[object Object]

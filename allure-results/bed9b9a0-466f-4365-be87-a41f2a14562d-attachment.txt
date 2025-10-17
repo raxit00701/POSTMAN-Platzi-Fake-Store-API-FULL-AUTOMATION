@@ -1,0 +1,3 @@
+level: log, messages: 📦 Products returned:,1
+level: log, messages: 🔎 Sample (first 3):,[object Object]
+level: log, messages: 💾 Saved:,[object Object]

@@ -1,0 +1,2 @@
+level: log, messages: 🔎 Raw response body:,{"path":"/api/v1/products/slug/]/related","timestamp":"2025-10-17T14:03:11.001Z","name":"EntityNotFoundError","message":"Could not find any entity of type \"Product\" matching: {\n    \"relations\": [\n        \"category\"\n    ],\n    \"where\": {\n        \"slug\": \"]\"\n    }\n}"}
+level: log, messages: ✅ Parsed JSON object:,[object Object]

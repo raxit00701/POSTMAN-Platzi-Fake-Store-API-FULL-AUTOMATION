@@ -1,0 +1,13 @@
+{
+    "content": "application/json",
+    "Authorization": "{{vault:json-web-token}}",
+    "Content-Type": "application/json",
+    "User-Agent": "PostmanRuntime/7.39.1",
+    "Accept": "*/*",
+    "Cache-Control": "no-cache",
+    "Postman-Token": "b675675f-fd3d-4cad-bf70-5153c6b8b865",
+    "Host": "api.escuelajs.co",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Connection": "keep-alive",
+    "Content-Length": "63"
+}

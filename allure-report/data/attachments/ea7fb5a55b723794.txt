@@ -1,0 +1,1 @@
+{"path":"/api/v1/products/slug/~","timestamp":"2025-10-17T14:03:10.630Z","name":"EntityNotFoundError","message":"Could not find any entity of type \"Product\" matching: {\n    \"relations\": [\n        \"category\"\n    ],\n    \"where\": {\n        \"slug\": \"~\"\n    }\n}"}

@@ -1,0 +1,3 @@
+level: log, messages: 🧮 Total items:,237
+level: log, messages: 🔎 Sample:,[object Object],[object Object],[object Object]
+level: warn, messages: ⚠️ avatar not http/https at indices:,6,7,

@@ -1,0 +1,19 @@
+{
+  "defaultEnvironment": "QA.postman_environment.json",
+  "runs": [
+    {
+      "collection": "Negative test cases.postman_collection.json",
+      "folder": "Users unhappy path",
+      "csv": "Create_a_User.csv",
+      "iterations": 20,
+      "delayMs": 0
+    },
+    {
+      "collection": "Positive test cases.postman_collection.json",
+      "folder": "Csv driven Product creation",
+      "csv": "Create_a_product.csv",
+      "iterations": 7,
+      "delayMs": 0
+    }
+  ]
+}

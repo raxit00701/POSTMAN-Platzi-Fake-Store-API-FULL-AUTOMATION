@@ -1,0 +1,1 @@
+level: log, messages: ✅ JSON body is strictly verified

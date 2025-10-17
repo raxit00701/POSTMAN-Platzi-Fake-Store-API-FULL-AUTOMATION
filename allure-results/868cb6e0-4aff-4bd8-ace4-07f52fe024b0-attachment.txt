@@ -1,0 +1,8 @@
+{
+  "title": "",
+  "price": "-[;",
+  "description": "",
+  "categoryId": "'",
+  "images": ["https://placehold.co/600x400"],
+  "New Product": "7"
+}

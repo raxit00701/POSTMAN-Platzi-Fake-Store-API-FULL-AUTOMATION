@@ -1,0 +1,4 @@
+{
+  "name": "Eco Essentials",
+  "image": "https://placeimg.com/640/480/any"
+}

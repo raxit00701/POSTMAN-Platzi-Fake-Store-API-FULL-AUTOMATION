@@ -1,0 +1,3 @@
+level: log, messages: 🔎 Raw response body:,{"path":"/api/v1/categories/slug/~","timestamp":"2025-10-17T14:03:13.270Z","name":"EntityNotFoundError","message":"Could not find any entity of type \"Category\" matching: {\n    \"where\": {\n        \"slug\": \"~\"\n    }\n}"}
+level: warn, messages: ⚠️ Expected output: No known shape matched
+level: log, messages: ✅ Parsed JSON (v4err):,[object Object]

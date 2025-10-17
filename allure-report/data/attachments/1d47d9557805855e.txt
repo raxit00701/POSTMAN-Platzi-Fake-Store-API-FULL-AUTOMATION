@@ -1,0 +1,5 @@
+{
+  "name": "Eco Edition 0ors",
+  "image": "https://placeimg.com/640/480/any",
+  "slug": "eco-edition-0ors"
+}

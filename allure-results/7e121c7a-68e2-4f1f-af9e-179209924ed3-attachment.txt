@@ -1,0 +1,1 @@
+level: log, messages: ✅ Captured the single User:,[object Object]

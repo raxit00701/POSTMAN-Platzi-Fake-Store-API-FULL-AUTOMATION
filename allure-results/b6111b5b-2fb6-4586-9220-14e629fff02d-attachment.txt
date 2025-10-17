@@ -1,0 +1,1 @@
+{"message":["title should not be empty","price must be a positive number","description should not be empty","categoryId must be a number conforming to the specified constraints"],"error":"Bad Request","statusCode":400}

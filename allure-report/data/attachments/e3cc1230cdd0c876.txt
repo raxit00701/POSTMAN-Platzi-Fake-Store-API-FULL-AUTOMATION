@@ -1,0 +1,2 @@
+level: log, messages: 📦 Total products:,28
+level: log, messages: 🔎 Sample (first 3):,[object Object],[object Object],[object Object]

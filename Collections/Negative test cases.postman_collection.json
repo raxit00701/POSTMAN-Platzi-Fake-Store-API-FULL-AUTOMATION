@@ -1,0 +1,2171 @@
+{
+	"info": {
+		"_postman_id": "8aa1be11-f6ac-4d88-a4e9-4c7c7d3c4041",
+		"name": "Negative test cases",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "44003382",
+		"_collection_link": "https://www.postman.com/drive3/workspace/postman-project/collection/44003382-8aa1be11-f6ac-4d88-a4e9-4c7c7d3c4041?action=share&source=collection_link&creator=44003382"
+	},
+	"item": [
+		{
+			"name": "Products unhappy path",
+			"item": [
+				{
+					"name": "Create product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 1) Assert: 400 Bad Request\r",
+									"pm.test(\"Status is 400 Bad Request\", function () {\r",
+									"  pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"// Always capture raw body\r",
+									"const raw = pm.response.text();\r",
+									"console.log(\"🔎 Raw response body:\", raw);\r",
+									"\r",
+									"// Try JSON parse (gracefully handle non-JSON)\r",
+									"let n1m1 = null;\r",
+									"try { n1m1 = pm.response.json(); } catch (e) { /* keep null if not JSON */ }\r",
+									"\r",
+									"// 2) Validate expected error shape\r",
+									"pm.test('Body has {\"error\":\"Bad Request\",\"statusCode\":400}', function () {\r",
+									"  pm.expect(n1m1, \"Response should be a JSON object\").to.be.an(\"object\");\r",
+									"\r",
+									"  // exact checks\r",
+									"  pm.expect(n1m1).to.have.property(\"error\");\r",
+									"  pm.expect(n1m1.error, 'error should equal \"Bad Request\"').to.equal(\"Bad Request\");\r",
+									"\r",
+									"  pm.expect(n1m1).to.have.property(\"statusCode\");\r",
+									"  pm.expect(n1m1.statusCode, \"statusCode should be number 400\").to.equal(400);\r",
+									"\r",
+									"  // common field in this API: \"message\" can be string or array → optional validation\r",
+									"  if (n1m1.hasOwnProperty(\"message\")) {\r",
+									"    const msg = n1m1.message;\r",
+									"    pm.expect(\r",
+									"      typeof msg === \"string\" || Array.isArray(msg),\r",
+									"      'message should be a string or an array of strings'\r",
+									"    ).to.be.true;\r",
+									"  }\r",
+									"});\r",
+									"\r",
+									"// If body wasn't JSON, surface a clear hint (without failing twice)\r",
+									"if (!n1m1) {\r",
+									"  console.warn(\"⚠️ Response was not valid JSON. If your API sometimes returns HTML/text for 400s, adjust the test accordingly.\");\r",
+									"}\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Helpers\r",
+									"const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];\r",
+									"const randDigit  = () => String(Math.floor(Math.random() * 10));                 // \"0\"–\"9\"\r",
+									"const randLetter = () => \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\"\r",
+									"  .charAt(Math.floor(Math.random() * 52));                                        // single letter\r",
+									"const randSpecial = (min=1, max=3) => {\r",
+									"  const chars = \"!@#$%^&*()_+-=[]{}|;:',.<>/?~`\";\r",
+									"  const len = Math.floor(Math.random() * (max - min + 1)) + min;                  // 1–3 chars\r",
+									"  let s = \"\";\r",
+									"  for (let i = 0; i < len; i++) s += chars.charAt(Math.floor(Math.random() * chars.length));\r",
+									"  return s;\r",
+									"};\r",
+									"\r",
+									"// 1) {{New Product}} → only empty OR single digit\r",
+									"pm.variables.set(\"New Product\", pick([\"\", randDigit()]));\r",
+									"\r",
+									"// 2) {{price}} → only empty, single letter, special characters\r",
+									"pm.variables.set(\"price\", pick([\"\", randLetter(), randSpecial()]));\r",
+									"\r",
+									"// 3) {{description}} → only empty\r",
+									"pm.variables.set(\"description\", \"\");\r",
+									"\r",
+									"// 4) {{categoryId}} → only empty, single letter, special characters\r",
+									"pm.variables.set(\"categoryId\", pick([\"\", randLetter(), randSpecial()]));\r",
+									"\r",
+									"// 5) {{title}} → only empty, special symbols characters\r",
+									"pm.variables.set(\"title\", pick([\"\", randSpecial()]));\r",
+									"\r",
+									"// (Optional) quick peek in console:\r",
+									"// console.log({\r",
+									"//   newProduct: pm.variables.get(\"New Product\"),\r",
+									"//   price: pm.variables.get(\"price\"),\r",
+									"//   description: pm.variables.get(\"description\"),\r",
+									"//   categoryId: pm.variables.get(\"categoryId\"),\r",
+									"//   title: pm.variables.get(\"title\")\r",
+									"// });\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"{{title}}\",\r\n  \"price\": \"{{price}}\",\r\n  \"description\": \"{{description}}\",\r\n  \"categoryId\": \"{{categoryId}}\",\r\n  \"images\": [\"https://placehold.co/600x400\"],\r\n  \"New Product\": \"{{New Product}}\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://api.escuelajs.co/api/v1/products/",
+							"protocol": "https",
+							"host": [
+								"api",
+								"escuelajs",
+								"co"
+							],
+							"path": [
+								"api",
+								"v1",
+								"products",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get a single product by id",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Generate a random {id} each run (request-scoped)\r",
+									"const LETTERS = \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\";\r",
+									"const SPECIAL = \"!@#$%^&*()_+-=[]{}|;:',.<>/?~`\";\r",
+									"\r",
+									"const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];\r",
+									"const rint = (a,b) => Math.floor(Math.random() * (b - a + 1)) + a;\r",
+									"\r",
+									"const letters = (len = rint(1, 8)) =>\r",
+									"  Array.from({ length: len }, () => LETTERS[Math.floor(Math.random() * LETTERS.length)]).join(\"\");\r",
+									"\r",
+									"const digits5 = () => String(Math.floor(10000 + Math.random() * 90000)); // 5 digits\r",
+									"\r",
+									"const specials = (len = rint(1, 6)) =>\r",
+									"  Array.from({ length: len }, () => SPECIAL[Math.floor(Math.random() * SPECIAL.length)]).join(\"\");\r",
+									"\r",
+									"// Randomly choose type each run\r",
+									"const kind = pick([\"letters\", \"digits\", \"specials\"]);\r",
+									"let idValue = kind === \"letters\" ? letters()\r",
+									"           : kind === \"digits\"  ? digits5()\r",
+									"           : specials();\r",
+									"\r",
+									"// If your API needs URL-encoding for specials, uncomment:\r",
+									"// idValue = encodeURIComponent(idValue);\r",
+									"\r",
+									"pm.variables.set(\"id\", idValue);\r",
+									"console.log(`→ {id} = ${idValue} (type=${kind})`);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// --- Parse response safely ---------------------------------------------------\r",
+									"let raw = pm.response.text();\r",
+									"let body;\r",
+									"try { body = pm.response.json(); } catch (e) { body = raw; }  // could be text\r",
+									"\r",
+									"// Quick helpers\r",
+									"const isObj = v => v && typeof v === \"object\" && !Array.isArray(v);\r",
+									"const has = (o, k) => Object.prototype.hasOwnProperty.call(o, k);\r",
+									"\r",
+									"// --- 1) Status assertion (400 preferred, allow known alternates) ------------\r",
+									"pm.test(\"Status is 400 Bad Request or a known error (404/500)\", function () {\r",
+									"  pm.expect([400, 404, 500]).to.include(pm.response.code);\r",
+									"});\r",
+									"\r",
+									"// --- 2) Validate one of the expected error shapes ---------------------------\r",
+									"\r",
+									"// Pattern A: strict 400 validation error\r",
+									"function matchesValidation400(b) {\r",
+									"  return isObj(b)\r",
+									"    && b.statusCode === 400\r",
+									"    && b.error === \"Bad Request\"\r",
+									"    && b.message === \"Validation failed (numeric string is expected)\";\r",
+									"}\r",
+									"\r",
+									"// Pattern B: EntityNotFoundError shape (usually 404 or 500)\r",
+									"function matchesEntityNotFound(b) {\r",
+									"  return isObj(b)\r",
+									"    && typeof b.path === \"string\"\r",
+									"    && typeof b.timestamp === \"string\"\r",
+									"    && b.name === \"EntityNotFoundError\"\r",
+									"    && typeof b.message === \"string\"\r",
+									"    && /Could not find any entity of type \"Product\"/.test(b.message);\r",
+									"}\r",
+									"\r",
+									"// Pattern C: 404 Not Found with \"Cannot GET ...\"\r",
+									"function matchesCannotGET404(b) {\r",
+									"  return isObj(b)\r",
+									"    && b.statusCode === 404\r",
+									"    && b.error === \"Not Found\"\r",
+									"    && typeof b.message === \"string\"\r",
+									"    && /^Cannot GET /.test(b.message);\r",
+									"}\r",
+									"\r",
+									"pm.test(\"Response matches one of the expected error formats\", function () {\r",
+									"  const ok =\r",
+									"    matchesValidation400(body) ||\r",
+									"    matchesEntityNotFound(body) ||\r",
+									"    matchesCannotGET404(body);\r",
+									"});\r",
+									"\r",
+									"// --- 3) Print response body to Postman Console ------------------------------\r",
+									"console.log(\"🔎 Response body:\", body);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/products/{{id}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"products",
+								"{{id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Pagination",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// --- helpers: random alphabetic string (length 3–8) ---\r",
+									"const LETTERS = \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\";\r",
+									"function alpha(min = 3, max = 8) {\r",
+									"  const len = Math.floor(Math.random() * (max - min + 1)) + min;\r",
+									"  let s = \"\";\r",
+									"  for (let i = 0; i < len; i++) s += LETTERS.charAt(Math.floor(Math.random() * LETTERS.length));\r",
+									"  return s;\r",
+									"}\r",
+									"\r",
+									"// --- alternate which var is empty each run (persist via environment) ---\r",
+									"const flip = pm.environment.get(\"alpha_fill_flip\") === \"1\"; // default false on first run\r",
+									"\r",
+									"if (flip) {\r",
+									"  // Run B: value1 = \"\", value2 = letters\r",
+									"  pm.variables.set(\"value1\", \"\");\r",
+									"  pm.variables.set(\"value2\", alpha());\r",
+									"  pm.environment.set(\"alpha_fill_flip\", \"0\");\r",
+									"} else {\r",
+									"  // Run A: value1 = letters, value2 = \"\"\r",
+									"  pm.variables.set(\"value1\", alpha());\r",
+									"  pm.variables.set(\"value2\", \"\");\r",
+									"  pm.environment.set(\"alpha_fill_flip\", \"1\");\r",
+									"}\r",
+									"\r",
+									"// (Optional) quick peek\r",
+									"// console.log({ value1: pm.variables.get(\"value1\"), value2: pm.variables.get(\"value2\") });\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 1) Assert: 400 Bad Request\r",
+									"pm.test(\"Status is 400 Bad Request\", function () {\r",
+									"  pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"// 3) Log raw body\r",
+									"const rawBody = pm.response.text();\r",
+									"console.log(\"🔎 Raw response:\", rawBody);\r",
+									"\r",
+									"// Parse JSON safely (use a unique var name)\r",
+									"let payload = null;\r",
+									"try { payload = pm.response.json(); } catch (e) { /* keep null if not JSON */ }\r",
+									"\r",
+									"// 2) Validate expected body (either offset or limit constraint)\r",
+									"pm.test('Body matches expected Bad Request schema', function () {\r",
+									"  pm.expect(payload, \"Response should be valid JSON\").to.be.an(\"object\");\r",
+									"  pm.expect(payload).to.have.property(\"error\", \"Bad Request\");\r",
+									"  pm.expect(payload).to.have.property(\"statusCode\", 400);\r",
+									"  pm.expect(payload).to.have.property(\"message\");\r",
+									"\r",
+									"  const msgs = payload.message;\r",
+									"  pm.expect(Array.isArray(msgs), \"`message` should be an array\").to.be.true;\r",
+									"\r",
+									"  const expectedMsgs = [\r",
+									"    \"offset must be a number conforming to the specified constraints\",\r",
+									"    \"limit must be a number conforming to the specified constraints\"\r",
+									"  ];\r",
+									"  const containsExpected = msgs.some(m => expectedMsgs.includes(m));\r",
+									"\r",
+									"  pm.expect(containsExpected, \"message should include the expected offset/limit constraint error\").to.be.true;\r",
+									"});\r",
+									"\r",
+									"// Optional: pretty log parsed JSON if available\r",
+									"if (payload) {\r",
+									"  console.log(\"✅ Parsed JSON:\", payload);\r",
+									"}\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/products?offset={{value1}}&limit={{value2}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"products"
+							],
+							"query": [
+								{
+									"key": "offset",
+									"value": "{{value1}}"
+								},
+								{
+									"key": "limit",
+									"value": "{{value2}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get products related by id",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];\r",
+									"const LETTERS = \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\";\r",
+									"const SPECIAL = \"!@#$%^&*()_+-=[]{}|;:',.<>/?~`\";\r",
+									"\r",
+									"const v1 = pick([\r",
+									"  \"\",                                                         // empty\r",
+									"  LETTERS.charAt(Math.floor(Math.random() * LETTERS.length)), // single letter\r",
+									"  SPECIAL.charAt(Math.floor(Math.random() * SPECIAL.length))  // single special\r",
+									"]);\r",
+									"\r",
+									"pm.variables.set(\"v1\", v1);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 1) Assert: 400 Bad Request OR 404 Not Found\r",
+									"pm.test(\"Status is 400 Bad Request OR 404 Not Found\", function () {\r",
+									"  pm.expect([400, 404]).to.include(pm.response.code);\r",
+									"});\r",
+									"\r",
+									"// 3) Print raw body\r",
+									"const rawBody = pm.response.text();\r",
+									"console.log(\"🔎 Raw response body:\", rawBody);\r",
+									"\r",
+									"// Parse JSON safely (avoid 'data' var name)\r",
+									"let jsonBody = null;\r",
+									"try { jsonBody = pm.response.json(); } catch (e) { /* non-JSON */ }\r",
+									"\r",
+									"const isObj = v => v && typeof v === \"object\" && !Array.isArray(v);\r",
+									"\r",
+									"// 2) Validate expected body per status\r",
+									"if (pm.response.code === 400) {\r",
+									"  pm.test('400 payload matches expected', function () {\r",
+									"    pm.expect(isObj(jsonBody), \"JSON object required for 400\").to.be.true;\r",
+									"    pm.expect(jsonBody).to.have.property(\"message\", \"Validation failed (numeric string is expected)\");\r",
+									"    pm.expect(jsonBody).to.have.property(\"error\", \"Bad Request\");\r",
+									"    pm.expect(jsonBody).to.have.property(\"statusCode\", 400);\r",
+									"  });\r",
+									"} else if (pm.response.code === 404) {\r",
+									"  pm.test('404 payload is valid', function () {\r",
+									"    pm.expect(isObj(jsonBody), \"JSON object required for 404\").to.be.true;\r",
+									"\r",
+									"    // Case A: API reuses 400-style payload even for 404\r",
+									"    const sameAs400 =\r",
+									"      jsonBody.message === \"Validation failed (numeric string is expected)\" &&\r",
+									"      jsonBody.error === \"Bad Request\" &&\r",
+									"      jsonBody.statusCode === 400;\r",
+									"\r",
+									"    // Case B: Exact 404 payload you provided\r",
+									"    const exactRelated404 =\r",
+									"      jsonBody.message === \"Cannot GET /api/v1/products//related\" &&\r",
+									"      jsonBody.error === \"Not Found\" &&\r",
+									"      jsonBody.statusCode === 404;\r",
+									"\r",
+									"    // Case C: Conventional 404 payload\r",
+									"    const typical404 =\r",
+									"      jsonBody.statusCode === 404 &&\r",
+									"      (typeof jsonBody.message !== \"string\" || /not\\s*found/i.test(jsonBody.message)) &&\r",
+									"      (typeof jsonBody.error   !== \"string\" || /not\\s*found/i.test(jsonBody.error));\r",
+									"\r",
+									"    pm.expect(sameAs400 || exactRelated404 || typical404, \"Expected a valid 404-style payload\").to.be.true;\r",
+									"  });\r",
+									"}\r",
+									"\r",
+									"// Optional pretty log\r",
+									"if (jsonBody) console.log(\"✅ Parsed JSON:\", jsonBody);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/products/{{v1}}/related",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"products",
+								"{{v1}}",
+								"related"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get a single product by slug",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Random picker\r",
+									"const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];\r",
+									"\r",
+									"// Single special character pool (URL-safe-ish)\r",
+									"const SPECIALS = \"!@#$%^&*_+-=~\";\r",
+									"\r",
+									"// Choose: empty string OR one special character\r",
+									"const v2 = pick([\"\", SPECIALS.charAt(Math.floor(Math.random() * SPECIALS.length))]);\r",
+									"\r",
+									"// Set request-scoped variable\r",
+									"pm.variables.set(\"v2\", v2);\r",
+									"\r",
+									"// (Optional) debug\r",
+									"// console.log(\"v2:\", pm.variables.get(\"v2\"));\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 1) Assert: 400 Bad Request\r",
+									"pm.test(\"Status is 400 Bad Request\", function () {\r",
+									"  pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"// 3) Always print response body (raw)\r",
+									"const raw = pm.response.text();\r",
+									"console.log(\"🔎 Raw response body:\", raw);\r",
+									"\r",
+									"// Parse JSON safely into a unique variable name\r",
+									"let d21 = null;\r",
+									"try { d21 = pm.response.json(); } catch (e) { /* keep null if not JSON */ }\r",
+									"\r",
+									"// 2) Validate: either ValidationError 400 OR EntityNotFoundError shape\r",
+									"pm.test(\"Body matches one of the expected error shapes\", function () {\r",
+									"  // Case A: 400 validation error\r",
+									"  const isValidation400 =\r",
+									"    d21.message === \"Validation failed (numeric string is expected)\" &&\r",
+									"    d21.error === \"Bad Request\" &&\r",
+									"    d21.statusCode === 400;\r",
+									"\r",
+									"  // Case B: EntityNotFoundError (fields present and plausible)\r",
+									"  const isEntityNotFound =\r",
+									"    typeof d21.path === \"string\" &&\r",
+									"    typeof d21.timestamp === \"string\" &&\r",
+									"    d21.name === \"EntityNotFoundError\" &&\r",
+									"    typeof d21.message === \"string\";\r",
+									"\r",
+									"  pm.expect(isValidation400 || isEntityNotFound,\r",
+									"    \"Expected either the Validation 400 object or the EntityNotFoundError object\"\r",
+									"  ).to.be.true;\r",
+									"\r",
+									"  // If it’s the validation case, assert exact values\r",
+									"  if (isValidation400) {\r",
+									"    pm.expect(d21).to.deep.equal({\r",
+									"      message: \"Validation failed (numeric string is expected)\",\r",
+									"      error: \"Bad Request\",\r",
+									"      statusCode: 400\r",
+									"    });\r",
+									"  }\r",
+									"\r",
+									"  // If it’s the EntityNotFound case, add a couple of sanity checks\r",
+									"  if (isEntityNotFound) {\r",
+									"    // Path usually looks like /api/v1/products/slug/<something>\r",
+									"    pm.expect(/^\\/api\\/v1\\/products\\/slug\\/.+$/.test(d21.path),\r",
+									"      \"path should look like /api/v1/products/slug/<value>\"\r",
+									"    ).to.be.true;\r",
+									"\r",
+									"    // Message should mention Product and slug\r",
+									"    pm.expect(d21.message).to.include('Product');\r",
+									"    pm.expect(d21.message).to.include('slug');\r",
+									"  }\r",
+									"});\r",
+									"\r",
+									"// Optional pretty log for parsed JSON\r",
+									"if (d21) console.log(\"✅ Parsed JSON:\", d21);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/products/slug/{{v2}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"products",
+								"slug",
+								"{{v2}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get products related by slug",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pick: \"\", single digit, or single special char\r",
+									"const specials = \"!@#$%^&*()_+-=[]{}|;:',.<>/?~`\";\r",
+									"const pick = Math.floor(Math.random() * 3);\r",
+									"\r",
+									"let val = \"\";\r",
+									"if (pick === 1) {\r",
+									"  val = String(Math.floor(Math.random() * 10)); // \"0\"–\"9\"\r",
+									"} else if (pick === 2) {\r",
+									"  val = specials.charAt(Math.floor(Math.random() * specials.length)); // one special char\r",
+									"}\r",
+									"\r",
+									"// Set request-scoped variable for the URL: {{baseurl}}/products/slug/{{v3}}/related\r",
+									"pm.variables.set(\"v3\", val);\r",
+									"\r",
+									"// Optional: inspect\r",
+									"// console.log(\"v3 =\", JSON.stringify(val));\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 1) Assert: 400 Bad Request OR 404 Not Found\r",
+									"pm.test(\"Status is 400 or 404\", function () {\r",
+									"  pm.expect([400, 404]).to.include(pm.response.code);\r",
+									"});\r",
+									"\r",
+									"// 3) Always print response body (raw)\r",
+									"const raw = pm.response.text();\r",
+									"console.log(\"🔎 Raw response body:\", raw);\r",
+									"\r",
+									"// Parse JSON safely\r",
+									"let d22 = null;\r",
+									"try { d22 = pm.response.json(); } catch (e) { /* keep null if not JSON */ }\r",
+									"\r",
+									"// --- Helper to fail with a clear message ------------------------------------\r",
+									"function fail(msg) { pm.expect.fail(msg); }\r",
+									"\r",
+									"// 2) Validate expected shapes\r",
+									"pm.test(\"Error payload matches expected shapes\", function () {\r",
+									"  const code = pm.response.code;\r",
+									"\r",
+									"  // Case A: 404 Not Found shape\r",
+									"  const isNotFound404 =\r",
+									"    d22 &&\r",
+									"    d22.error === \"Not Found\" &&\r",
+									"    d22.statusCode === 404 &&\r",
+									"    typeof d22.message === \"string\";\r",
+									"\r",
+									"  if (isNotFound404) {\r",
+									"    // Example: \"Cannot GET /api/v1/products/slug//related\"\r",
+									"    pm.expect(d22.message, \"message should describe the missing route\")\r",
+									"      .to.match(/^Cannot GET \\/api\\/v1\\/products\\/slug\\/.*\\/related$/);\r",
+									"    return;\r",
+									"  }\r",
+									"\r",
+									"  // Case B: EntityNotFoundError shape (example object you shared)\r",
+									"  const isEntityNotFound =\r",
+									"    d22 &&\r",
+									"    d22.name === \"EntityNotFoundError\" &&\r",
+									"    typeof d22.message === \"string\" &&\r",
+									"    typeof d22.timestamp === \"string\" &&\r",
+									"    typeof d22.path === \"string\";\r",
+									"\r",
+									"  if (isEntityNotFound) {\r",
+									"    // Path may vary; if you expect exactly the sample value, keep this strict check:\r",
+									"    // pm.expect(d22.path).to.equal(\"/api/v1/products/slug/9/related\");\r",
+									"    // Or keep it flexible to any slug path:\r",
+									"    pm.expect(d22.path).to.match(/^\\/api\\/v1\\/products\\/slug\\/[^/]+\\/related$/);\r",
+									"\r",
+									"    // Message should mention Product and slug=...\r",
+									"    pm.expect(d22.message).to.include(\"Product\");\r",
+									"    pm.expect(d22.message).to.include('\"slug\":');\r",
+									"    return;\r",
+									"  }\r",
+									"\r",
+									"  // Case C: 400 Bad Request fallback validation (if server returns 400 with standard shape)\r",
+									"  if (code === 400) {\r",
+									"    pm.expect(d22).to.have.property(\"error\", \"Bad Request\");\r",
+									"    if (d22.hasOwnProperty(\"statusCode\")) {\r",
+									"      pm.expect(d22.statusCode).to.equal(400);\r",
+									"    }\r",
+									"    return;\r",
+									"  }\r",
+									"\r",
+									"  // If nothing matched\r",
+									"  fail(\"Unexpected error payload shape.\");\r",
+									"});\r",
+									"\r",
+									"// (Optional) pretty log when JSON parsed\r",
+									"if (d22) {\r",
+									"  console.log(\"✅ Parsed JSON object:\", d22);\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/products/slug/{{v3}}/related",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"products",
+								"slug",
+								"{{v3}}",
+								"related"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Product",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Allowed pools (no digits)\r",
+									"const LETTERS = \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\";\r",
+									"const SPECIAL = \"!@#$%^&*()_+-=[]{}|;:',.<>/?~`\";\r",
+									"const ALL = LETTERS + SPECIAL;\r",
+									"\r",
+									"// Build a random string length 4–10, guaranteed 1+ letter & 1+ special\r",
+									"function makeV3() {\r",
+									"  const len = 4 + Math.floor(Math.random() * 7); // 4..10\r",
+									"  let out = \"\";\r",
+									"  // ensure at least one letter & one special\r",
+									"  out += LETTERS.charAt(Math.floor(Math.random() * LETTERS.length));\r",
+									"  out += SPECIAL.charAt(Math.floor(Math.random() * SPECIAL.length));\r",
+									"  // fill the rest with allowed chars\r",
+									"  for (let i = 2; i < len; i++) {\r",
+									"    out += ALL.charAt(Math.floor(Math.random() * ALL.length));\r",
+									"  }\r",
+									"  // simple shuffle\r",
+									"  return out.split(\"\").sort(() => Math.random() - 0.5).join(\"\");\r",
+									"}\r",
+									"\r",
+									"pm.variables.set(\"v3\", makeV3());\r",
+									"\r",
+									"// (Optional) peek\r",
+									"// console.log(\"v3 =\", pm.variables.get(\"v3\"));\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 1) Assert: 400 Bad Request OR 404 Not Found\r",
+									"pm.test(\"Status is 400 Bad Request or 404 Not Found\", function () {\r",
+									"  pm.expect([400, 404]).to.include(pm.response.code);\r",
+									"});\r",
+									"\r",
+									"// 3) Print raw response body\r",
+									"const raw = pm.response.text();\r",
+									"console.log(\"🔎 Raw response body:\", raw);\r",
+									"\r",
+									"// 2) Validate body:\r",
+									"//    If 400: EITHER exact JSON:\r",
+									"//      {\"message\":\"Validation failed (numeric string is expected)\",\"error\":\"Bad Request\",\"statusCode\":400}\r",
+									"//      OR plain text containing \"400 Bad Request\"\r",
+									"//    If 404: EITHER JSON with statusCode: 404 (and optional error/message)\r",
+									"//      OR plain text containing \"404 Not Found\"\r",
+									"pm.test('Body matches expected error shape/text for 400 or 404', function () {\r",
+									"  const code = pm.response.code;\r",
+									"  let ok = false;\r",
+									"\r",
+									"  try {\r",
+									"    const data = pm.response.json();\r",
+									"\r",
+									"    if (code === 400) {\r",
+									"      ok =\r",
+									"        data &&\r",
+									"        typeof data === \"object\" &&\r",
+									"        data.message === \"Validation failed (numeric string is expected)\" &&\r",
+									"        data.error === \"Bad Request\" &&\r",
+									"        data.statusCode === 400;\r",
+									"    } else if (code === 404) {\r",
+									"      // keep 404 minimal: just require statusCode 404 if JSON\r",
+									"      ok = data && typeof data === \"object\" && data.statusCode === 404;\r",
+									"    }\r",
+									"  } catch (e) {\r",
+									"    // not JSON; fall back to text checks below\r",
+									"  }\r",
+									"\r",
+									"  if (!ok) {\r",
+									"    if (code === 400) {\r",
+									"      ok = /\\b400 Bad Request\\b/i.test(raw);\r",
+									"    } else if (code === 404) {\r",
+									"      ok = /\\b404 Not Found\\b/i.test(raw);\r",
+									"    }\r",
+									"  }\r",
+									"\r",
+									"  pm.expect(ok, 'Expected valid 400/404 error payload or corresponding plain-text').to.be.true;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"title\": \"{{UpdateTitle}}\",\r\n  \"price\": 100\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/products/{{v3}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"products",
+								"{{v3}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete a product",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Helpers\r",
+									"const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];\r",
+									"const rndLen = (min=1, max=6) => Math.floor(Math.random() * (max - min + 1)) + min;\r",
+									"\r",
+									"const LETTERS = \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\";\r",
+									"// Avoid URL-breaking specials like / ? # &\r",
+									"const SPECIAL = \"!@#$%^*()_+-=[]{}|:;',.<>~`\";\r",
+									"\r",
+									"const alpha = (n=rndLen()) => Array.from({length:n}, () => LETTERS[Math.floor(Math.random()*LETTERS.length)]).join(\"\");\r",
+									"const special = (n=rndLen()) => Array.from({length:n}, () => SPECIAL[Math.floor(Math.random()*SPECIAL.length)]).join(\"\");\r",
+									"\r",
+									"// Choose one per run: empty | alphabet | special\r",
+									"const v4 = pick([\"\", alpha(), special()]);\r",
+									"pm.variables.set(\"v4\", v4);\r",
+									"\r",
+									"// Optional: inspect\r",
+									"// console.log({ v4 });\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 1) Assert: 400 Bad Request OR 404 Not Found\r",
+									"pm.test(\"Status is 400 or 404\", function () {\r",
+									"  const s = pm.response.code;\r",
+									"  pm.expect([400, 404]).to.include(s);\r",
+									"});\r",
+									"\r",
+									"// 3) Always print raw body\r",
+									"const raw = pm.response.text();\r",
+									"console.log(\"🔎 Raw response:\", raw);\r",
+									"\r",
+									"// Safe JSON parse (avoid Newman conflicts on non-JSON)\r",
+									"let body = null;\r",
+									"try { body = pm.response.json(); } catch (e) { /* keep null */ }\r",
+									"\r",
+									"// Helpers to match expected bodies (allow extra fields)\r",
+									"function isNotFound(x) {\r",
+									"  return x\r",
+									"    && x.error === \"Not Found\"\r",
+									"    && x.statusCode === 404\r",
+									"    && x.message === \"Cannot DELETE /api/v1/products/\";\r",
+									"}\r",
+									"function isBadRequest(x) {\r",
+									"  return x\r",
+									"    && x.error === \"Bad Request\"\r",
+									"    && x.statusCode === 400\r",
+									"    && x.message === \"Validation failed (numeric string is expected)\";\r",
+									"}\r",
+									"\r",
+									"// 2) Validate against the two accepted shapes\r",
+									"pm.test(\"Body matches expected 400/404 error JSON\", function () {\r",
+									"  pm.expect(body, \"Response should be JSON\").to.be.an(\"object\");\r",
+									"  pm.expect(isNotFound(body) || isBadRequest(body), \"Body must match one of the expected error formats\").to.be.true;\r",
+									"});\r",
+									"\r",
+									"// Extra visibility without affecting pass/fail\r",
+									"if (body) console.log(\"✅ Parsed JSON:\", body);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "{{baseurl}}/products/{{v4}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"products",
+								"{{v4}}"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Categories unhappy path",
+			"item": [
+				{
+					"name": "Create a category",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// 50/50: empty string OR special-chars-only string\r",
+									"const pickEmpty = Math.random() < 0.5;\r",
+									"\r",
+									"// Build a special-chars-only string (no letters/digits)\r",
+									"function specialOnly(len) {\r",
+									"  const chars = \"!@#$%^&*()[]{}<>?/\\\\|~`'\\\";:.,-_=+₹€£§©®™^•✓★☆→←↑↓◼◻\";\r",
+									"  let out = \"\";\r",
+									"  for (let i = 0; i < len; i++) {\r",
+									"    out += chars[Math.floor(Math.random() * chars.length)];\r",
+									"  }\r",
+									"  return out;\r",
+									"}\r",
+									"\r",
+									"const value = pickEmpty ? \"\" : specialOnly( Math.floor(Math.random() * 8) + 1 ); // 1–8 chars\r",
+									"pm.variables.set(\"name\", value);\r",
+									"\r",
+									"// Optional: quick visibility in Console\r",
+									"console.log(\"{{name}} set to:\", JSON.stringify(value));\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 1) Assert: 400 Bad Request OR body indicates 400/UNIQUE error\r",
+									"pm.test(\"Status 400 OR body shows 400/UNIQUE error\", function () {\r",
+									"  const raw = pm.response.text();\r",
+									"  const statusIs400 = pm.response.code === 400;\r",
+									"  const bodyHas400  = /\"statusCode\"\\s*:\\s*400\\b/.test(raw);\r",
+									"  const bodyUnique  = /UNIQUE constraint failed/i.test(raw);\r",
+									"  pm.expect(statusIs400 || bodyHas400 || bodyUnique).to.be.true;\r",
+									"});\r",
+									"\r",
+									"// 3) Always print raw response body\r",
+									"const rawBody = pm.response.text();\r",
+									"console.log(\"🔎 Raw response:\", rawBody);\r",
+									"\r",
+									"// Parse JSON if possible\r",
+									"let respObj_neg = null;\r",
+									"try { respObj_neg = pm.response.json(); } catch (_) { /* non-JSON */ }\r",
+									"\r",
+									"// 2) Validate expected error shape:\r",
+									"//    A) {\"error\":\"Bad Request\",\"statusCode\":400}\r",
+									"//    B) QueryFailedError + UNIQUE constraint failed (category.slug/product.slug)\r",
+									"pm.test('Error shape is Bad Request(400) OR QueryFailedError (UNIQUE)', function () {\r",
+									"  pm.expect(respObj_neg, \"Response should be JSON for shape checks\").to.be.an(\"object\");\r",
+									"\r",
+									"  if (respObj_neg && respObj_neg.error === \"Bad Request\") {\r",
+									"    pm.expect(respObj_neg).to.have.property(\"statusCode\", 400);\r",
+									"  } else if (respObj_neg && respObj_neg.name === \"QueryFailedError\") {\r",
+									"    pm.expect(String(respObj_neg.message || \"\"), \"UNIQUE failure message\").to.match(/UNIQUE constraint failed/i);\r",
+									"    // Optional exact code check if present\r",
+									"    if (respObj_neg.code) {\r",
+									"      pm.expect(respObj_neg.code).to.equal(\"SQLITE_CONSTRAINT_UNIQUE\");\r",
+									"    }\r",
+									"    // Optional path sanity if present\r",
+									"    if (respObj_neg.path) {\r",
+									"      pm.expect(respObj_neg.path).to.be.a(\"string\");\r",
+									"    }\r",
+									"  } else {\r",
+									"    pm.expect.fail(\"Unexpected error shape: \" + rawBody);\r",
+									"  }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"{{name}}\",\r\n  \"image\": \"https://placeimg.com/640/480/any\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseurl}}/categories/",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"categories",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all products by category",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Randomly pick: empty | alphabet | special\r",
+									"const pick = () => {\r",
+									"  const opts = [\"empty\", \"alpha\", \"special\"];\r",
+									"  return opts[Math.floor(Math.random() * opts.length)];\r",
+									"};\r",
+									"\r",
+									"// One-letter a–z\r",
+									"const randAlpha = () => String.fromCharCode(97 + Math.floor(Math.random() * 26));\r",
+									"\r",
+									"// URL-safe special characters (single char)\r",
+									"const specials = [\"-\", \"_\", \".\", \"~\", \"!\", \"*\", \"'\", \"(\", \")\", \"@\", \"#\", \"$\", \"%\", \"&\", \"+\", \",\", \";\", \":\"];\r",
+									"\r",
+									"let value = \"\";\r",
+									"switch (pick()) {\r",
+									"  case \"alpha\":\r",
+									"    value = randAlpha();\r",
+									"    break;\r",
+									"  case \"special\":\r",
+									"    value = specials[Math.floor(Math.random() * specials.length)];\r",
+									"    break;\r",
+									"  case \"empty\":\r",
+									"  default:\r",
+									"    value = \"\"; // intentionally empty\r",
+									"}\r",
+									"\r",
+									"// Set as a request-scoped (ephemeral) variable\r",
+									"pm.variables.set(\"c8\", value);\r",
+									"\r",
+									"// (Optional) Log what got chosen\r",
+									"console.log('c8 set to:', value === \"\" ? \"<empty>\" : value);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 1) Parse response JSON (safe)\r",
+									"let resJson = {};\r",
+									"pm.test(\"Response is JSON\", function () {\r",
+									"  try { resJson = pm.response.json(); } catch (e) { resJson = {}; }\r",
+									"  pm.expect(resJson).to.be.an(\"object\");\r",
+									"});\r",
+									"\r",
+									"// Helper to decide which shape to validate this run\r",
+									"const code = pm.response.code;\r",
+									"const looks400 = code === 400 || resJson.statusCode === 400 || resJson.error === \"Bad Request\";\r",
+									"const looks404 = code === 404 || resJson.statusCode === 404 || resJson.error === \"Not Found\";\r",
+									"\r",
+									"// 2) Validate body (only ONE test shows per run)\r",
+									"if (looks400) {\r",
+									"  pm.test(\"Body matches 400 Bad Request\", function () {\r",
+									"    pm.expect(resJson.error).to.equal(\"Bad Request\");\r",
+									"    pm.expect(resJson.statusCode).to.equal(400);\r",
+									"  });\r",
+									"} else if (looks404) {\r",
+									"  pm.test(\"Body matches 404 Not Found\", function () {\r",
+									"    pm.expect(resJson.error).to.equal(\"Not Found\");\r",
+									"    pm.expect(resJson.statusCode).to.equal(404);\r",
+									"  });\r",
+									"} else {\r",
+									"  pm.test(`Unexpected error body`, function () {\r",
+									"    pm.expect.fail(`Got: ${JSON.stringify(resJson)}`);\r",
+									"  });\r",
+									"}\r",
+									"\r",
+									"// 3) HTTP status assertion (must be 400 or 404 and align with body if present)\r",
+									"pm.test(\"HTTP status is 400 or 404 and aligns with body\", function () {\r",
+									"  pm.expect([400, 404]).to.include(code);\r",
+									"  if (typeof resJson.statusCode === \"number\") {\r",
+									"    pm.expect(code).to.equal(resJson.statusCode);\r",
+									"  }\r",
+									"});\r",
+									"\r",
+									"// 4) Print response body\r",
+									"console.log(\"🧾 Response body:\", resJson);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/categories/{{c8}}/products",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"categories",
+								"{{c8}}",
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get a single category by ID",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// One char per run: letter OR special (URL-safe specials)\r",
+									"const LETTERS = \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\";\r",
+									"const SPECIAL = \"!@#$%^&*()_+-=[]{}|~.\"; // avoid / ? & # to not break URLs\r",
+									"\r",
+									"const pick = (s) => s.charAt(Math.floor(Math.random() * s.length));\r",
+									"const char = Math.random() < 0.5 ? pick(LETTERS) : pick(SPECIAL);\r",
+									"\r",
+									"// Request-scoped var (no env/collection/global pollution)\r",
+									"pm.variables.set(\"c4\", char);\r",
+									"\r",
+									"// Debug (optional)\r",
+									"// console.log(\"v4:\", pm.variables.get(\"v4\"));\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 1) Assert: 400 Bad Request\r",
+									"pm.test(\"Status is 400 Bad Request\", function () {\r",
+									"  pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"// 2) Validate JSON response body matches expected fields\r",
+									"const expected = {\r",
+									"  message: \"Validation failed (numeric string is expected)\",\r",
+									"  error: \"Bad Request\",\r",
+									"  statusCode: 400\r",
+									"};\r",
+									"\r",
+									"// Safe parse (no throws)\r",
+									"let a1b2 = null;\r",
+									"try { a1b2 = pm.response.json(); } catch (e) { /* keep null */ }\r",
+									"\r",
+									"pm.test(\"Body is valid JSON object\", function () {\r",
+									"  pm.expect(a1b2, \"Response must be JSON\").to.be.an(\"object\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Body has expected error payload\", function () {\r",
+									"  pm.expect(a1b2).to.have.property(\"message\", expected.message);\r",
+									"  pm.expect(a1b2).to.have.property(\"error\", expected.error);\r",
+									"  pm.expect(a1b2).to.have.property(\"statusCode\", expected.statusCode);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/categories/{{c4}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"categories",
+								"{{c4}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get a single category by slug",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"(() => {\r",
+									"  const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];\r",
+									"  const LETTERS = \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\";\r",
+									"  const SPECIAL = \"!@#$%^&*._-~\"; // URL-safe-ish specials for path tests\r",
+									"\r",
+									"  const val = pick([\r",
+									"    \"\",                                                   // empty\r",
+									"    LETTERS.charAt(Math.floor(Math.random() * LETTERS.length)), // single letter\r",
+									"    SPECIAL.charAt(Math.floor(Math.random() * SPECIAL.length))   // single special\r",
+									"  ]);\r",
+									"\r",
+									"  // Request-scoped to avoid clashes with Newman/other requests\r",
+									"  pm.variables.set(\"c5\", val);\r",
+									"\r",
+									"  // If you need an encoded version for the path, uncomment next line and use {{c5_encoded}} in the URL:\r",
+									"  // pm.variables.set(\"c5_encoded\", encodeURIComponent(val));\r",
+									"\r",
+									"  // Optional debug:\r",
+									"  // console.log(\"c5 ->\", JSON.stringify(val));\r",
+									"})();\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"(() => {\r",
+									"  // 1) Assert: 400 Bad Request\r",
+									"  pm.test(\"Status is 400 Bad Request\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"  });\r",
+									"\r",
+									"  // Raw body (for debugging)\r",
+									"  const rawBody_v4err = pm.response.text();\r",
+									"  console.log(\"🔎 Raw response body:\", rawBody_v4err);\r",
+									"\r",
+									"  // Safe JSON parse\r",
+									"  let respObj_v4err = null;\r",
+									"  try { respObj_v4err = pm.response.json(); } catch (e) { /* non-JSON */ }\r",
+									"\r",
+									"  // Helper\r",
+									"  const isIsoTs_v4err = s =>\r",
+									"    typeof s === \"string\" &&\r",
+									"    /^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$/.test(s);\r",
+									"\r",
+									"  // Slug you sent in Pre-request (may be letter/special char)\r",
+									"  const sentV4_v4err = pm.variables.get(\"v4\") || \"\";\r",
+									"\r",
+									"  // 2) Validate one of the two expected shapes\r",
+									"  pm.test(\"Body matches EntityNotFoundError OR Bad Request validation\", function () {\r",
+									"    pm.expect(respObj_v4err, \"Response should be JSON\").to.be.an(\"object\");\r",
+									"\r",
+									"    // Shape A: EntityNotFoundError\r",
+									"    const shapeA_v4err =\r",
+									"      respObj_v4err.name === \"EntityNotFoundError\" &&\r",
+									"      typeof respObj_v4err.message === \"string\" &&\r",
+									"      typeof respObj_v4err.path === \"string\" &&\r",
+									"      respObj_v4err.path.startsWith(\"/api/v1/categories/slug/\") &&\r",
+									"      isIsoTs_v4err(respObj_v4err.timestamp) &&\r",
+									"      // If v4 was provided, path's last segment should equal it (decoded)\r",
+									"      (sentV4_v4err\r",
+									"        ? decodeURIComponent(respObj_v4err.path.split(\"/\").pop() || \"\") === sentV4_v4err\r",
+									"        : true);\r",
+									"\r",
+									"    // Shape B: Bad Request validation error\r",
+									"    const shapeB_v4err =\r",
+									"      respObj_v4err.error === \"Bad Request\" &&\r",
+									"      respObj_v4err.statusCode === 400 &&\r",
+									"      respObj_v4err.message === \"Validation failed (numeric string is expected)\";\r",
+									"\r",
+									"    // 👉 Extra: log which shape matched (expected output clarity)\r",
+									"    if (shapeA_v4err) {\r",
+									"      console.log(\"✅ Expected output: EntityNotFoundError shape matched\");\r",
+									"    } else if (shapeB_v4err) {\r",
+									"      console.log(\"✅ Expected output: Bad Request validation shape matched\");\r",
+									"    } else {\r",
+									"      console.warn(\"⚠️ Expected output: No known shape matched\");\r",
+									"    }\r",
+									"  });\r",
+									"\r",
+									"  // Pretty log parsed JSON (optional)\r",
+									"  if (respObj_v4err) {\r",
+									"    console.log(\"✅ Parsed JSON (v4err):\", respObj_v4err);\r",
+									"  }\r",
+									"})();"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/categories/slug/{{c5}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"categories",
+								"slug",
+								"{{c5}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update a category",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Simple helpers\r",
+									"const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];\r",
+									"const letter = () => \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\"\r",
+									"  .charAt(Math.floor(Math.random() * 52));\r",
+									"const special = () => {\r",
+									"  const chars = \"!@#$%^&*()_+-=[]{}|;:',.<>/?~`\";\r",
+									"  const len = 1 + Math.floor(Math.random() * 3); // 1–3 specials\r",
+									"  let s = \"\";\r",
+									"  for (let i = 0; i < len; i++) s += chars.charAt(Math.floor(Math.random() * chars.length));\r",
+									"  return s;\r",
+									"};\r",
+									"\r",
+									"// Set request-scoped variable c6\r",
+									"pm.variables.set(\"c6\", pick([letter(), \"\", special()]));\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 1) Assert: 400 Bad Request OR 404 Not Found\r",
+									"pm.test(\"Status is 400 or 404\", function () {\r",
+									"  pm.expect([400, 404]).to.include(pm.response.code);\r",
+									"});\r",
+									"\r",
+									"// 3) Always print raw response body\r",
+									"const rawBody = pm.response.text();\r",
+									"console.log(\"🔎 Raw response body:\", rawBody);\r",
+									"\r",
+									"// Parse JSON safely\r",
+									"let respObj_httpErr = null;\r",
+									"try { respObj_httpErr = pm.response.json(); } catch (e) { /* keep null */ }\r",
+									"\r",
+									"// 2) Validate JSON response body against expected outputs\r",
+									"pm.test(\"Body matches expected error format\", function () {\r",
+									"  pm.expect(respObj_httpErr, \"Response should be JSON\").to.be.an(\"object\");\r",
+									"\r",
+									"  if (pm.response.code === 404) {\r",
+									"    pm.expect(respObj_httpErr).to.have.property(\"message\", \"Cannot PUT /api/v1/categories/\");\r",
+									"    pm.expect(respObj_httpErr).to.have.property(\"error\", \"Not Found\");\r",
+									"    pm.expect(respObj_httpErr).to.have.property(\"statusCode\", 404);\r",
+									"  } else if (pm.response.code === 400) {\r",
+									"    pm.expect(respObj_httpErr).to.have.property(\"error\", \"Bad Request\");\r",
+									"    pm.expect(respObj_httpErr).to.have.property(\"statusCode\", 400);\r",
+									"  } else {\r",
+									"    pm.expect.fail(`Unexpected status: ${pm.response.code}`);\r",
+									"  }\r",
+									"});\r",
+									"\r",
+									"// Optional: pretty log parsed JSON if available\r",
+									"if (respObj_httpErr) {\r",
+									"  console.log(\"✅ Parsed JSON:\", respObj_httpErr);\r",
+									"}\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"no test\",\r\n  \"image\": \"https://placeimg.com/640/480/any\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://api.escuelajs.co/api/v1/categories/{{c6}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"escuelajs",
+								"co"
+							],
+							"path": [
+								"api",
+								"v1",
+								"categories",
+								"{{c6}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a category",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pre-request: set {{c7}} to \"\", a random alphabet letter, or a special char (URL-safe)\r",
+									"(function () {\r",
+									"  const rand = (n) => Math.floor(Math.random() * n);\r",
+									"\r",
+									"  // random alphabetic character (A–Z or a–z)\r",
+									"  const letter = String.fromCharCode(rand(26) + (rand(2) ? 65 : 97));\r",
+									"\r",
+									"  // URL-safe specials to avoid path encoding issues\r",
+									"  const specials = [\"-\", \"_\", \"~\"];\r",
+									"\r",
+									"  const candidates = [\"\", letter, specials[rand(specials.length)]];\r",
+									"  const chosen = candidates[rand(candidates.length)];\r",
+									"\r",
+									"  pm.variables.set(\"c7\", chosen);    // request-scoped\r",
+									"  console.log(\"{{c7}} =\", JSON.stringify(chosen));\r",
+									"})();\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 1) Status must be 400 or 404\r",
+									"pm.test(\"Status is 400 Bad Request or 404 Not Found\", function () {\r",
+									"  pm.expect([400, 404]).to.include(pm.response.code);\r",
+									"});\r",
+									"\r",
+									"// 2) Parse response JSON (safely)\r",
+									"let resJson = null;\r",
+									"try { resJson = pm.response.json(); } catch (e) { /* keep null */ }\r",
+									"\r",
+									"// 3) Validate expected error payloads based on status\r",
+									"pm.test(\"Error payload matches expected schema\", function () {\r",
+									"  pm.expect(resJson, \"Response must be JSON\").to.be.an(\"object\");\r",
+									"  if (pm.response.code === 400) {\r",
+									"    pm.expect(resJson).to.have.property(\"error\", \"Bad Request\");\r",
+									"    pm.expect(resJson).to.have.property(\"statusCode\", 400);\r",
+									"  } else if (pm.response.code === 404) {\r",
+									"    pm.expect(resJson).to.have.property(\"error\", \"Not Found\");\r",
+									"    pm.expect(resJson).to.have.property(\"statusCode\", 404);\r",
+									"  } else {\r",
+									"    pm.expect.fail(`Unexpected status: ${pm.response.code}`);\r",
+									"  }\r",
+									"});\r",
+									"\r",
+									"// 4) Print response body to console\r",
+									"console.log(\"Response body:\", pm.response.text());\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/categories/{{c7}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"categories",
+								"{{c7}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Filter Products unhappy path",
+			"item": [
+				{
+					"name": "Filter by Category",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pre-request script: set {{f1}} to a single char (either a letter OR a special) each run\r",
+									"\r",
+									"// Pools\r",
+									"const letters = \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\".split(\"\");\r",
+									"const specials = [\"-\", \"_\", \"~\", \"!\", \"$\", \"^\", \"*\"];\r",
+									"\r",
+									"// Randomly choose which pool to use this run\r",
+									"const pool = Math.random() < 0.5 ? letters : specials;\r",
+									"\r",
+									"// Pick exactly one character\r",
+									"const oneChar = pool[Math.floor(Math.random() * pool.length)];\r",
+									"\r",
+									"// Set a request-scoped variable so it overrides others without touching collections\r",
+									"pm.variables.set(\"f1\", String(oneChar).slice(0, 1));\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 1) Assert HTTP status is 400 Bad Request\r",
+									"pm.test(\"Status is 400 Bad Request\", function () {\r",
+									"  pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"// 2) Validate response body has: { \"error\": \"Bad Request\", \"statusCode\": 400 }\r",
+									"pm.test(\"Body contains expected error + statusCode\", function () {\r",
+									"  const bodyText_badReq = pm.response.text();\r",
+									"  let respObj_badReq = null;\r",
+									"\r",
+									"  try { respObj_badReq = pm.response.json(); } catch (e) { /* not JSON; fall back to text checks */ }\r",
+									"\r",
+									"  if (respObj_badReq && typeof respObj_badReq === \"object\") {\r",
+									"    pm.expect(respObj_badReq).to.have.property(\"error\", \"Bad Request\");\r",
+									"    pm.expect(respObj_badReq).to.have.property(\"statusCode\", 400);\r",
+									"  } else {\r",
+									"    // Fallback: plain text must include both markers\r",
+									"    pm.expect(bodyText_badReq).to.include('\"error\"');\r",
+									"    pm.expect(bodyText_badReq).to.include('Bad Request');\r",
+									"    pm.expect(bodyText_badReq).to.include('\"statusCode\"');\r",
+									"    pm.expect(bodyText_badReq).to.include('400');\r",
+									"  }\r",
+									"});\r",
+									"\r",
+									"// 3) Print the response body to console\r",
+									"console.log(\"🔎 Response body:\", pm.response.text());\r",
+									"\r",
+									"// 4) Extra safety: ensure content-type is JSON when applicable (non-blocking)\r",
+									"pm.test(\"Content-Type hints JSON (if provided)\", function () {\r",
+									"  const ct_badReq = (pm.response.headers.get(\"Content-Type\") || \"\").toLowerCase();\r",
+									"  if (ct_badReq) pm.expect(ct_badReq).to.include(\"application/json\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/products/?categoryId={{f1}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"products",
+								""
+							],
+							"query": [
+								{
+									"key": "categoryId",
+									"value": "{{f1}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Combining Filters",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 1) Assert: 400 Bad Request\r",
+									"pm.test(\"Status is 400 Bad Request\", function () {\r",
+									"  pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"// 2) Parse + validate expected error shape\r",
+									"let f1d1;\r",
+									"pm.test(\"Response has expected error fields\", function () {\r",
+									"  // Try parse JSON\r",
+									"  try { f1d1 = pm.response.json(); } catch (e) { f1d1 = null; }\r",
+									"  pm.expect(f1d1, \"Body must be JSON object\").to.be.an(\"object\");\r",
+									"  pm.expect(f1d1).to.have.property(\"error\", \"Bad Request\");\r",
+									"  pm.expect(f1d1).to.have.property(\"statusCode\", 400);\r",
+									"});\r",
+									"\r",
+									"// 3) Print response body to console (raw text + parsed JSON if available)\r",
+									"console.log(\"↩️ Raw response body:\", pm.response.text());\r",
+									"if (f1d1) {\r",
+									"  console.log(\"🧾 Parsed JSON:\", JSON.stringify(f1d1, null, 2));\r",
+									"}\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pools for random values\r",
+									"const digits = \"0123456789\";\r",
+									"const letters = \"abcdefghijklmnopqrstuvwxyz\";\r",
+									"const specials = \"!@#$%^&*\";\r",
+									"\r",
+									"// Helper to pick one random char\r",
+									"function pick(str) {\r",
+									"    return str.charAt(Math.floor(Math.random() * str.length));\r",
+									"}\r",
+									"\r",
+									"// f2 → single digit + single special character\r",
+									"pm.variables.set(\"f2\", pick(digits) + pick(specials));\r",
+									"\r",
+									"// f3 → single letter + single special character\r",
+									"pm.variables.set(\"f3\", pick(letters) + pick(specials));\r",
+									"\r",
+									"// f4 → single letter + single special character\r",
+									"pm.variables.set(\"f4\", pick(letters) + pick(specials));\r",
+									"\r",
+									"// f5 → single letter + single special character\r",
+									"pm.variables.set(\"f5\", pick(letters) + pick(specials));\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/products/?title={{f2}}&price_min={{f3}}&price_max={{f4}}&categoryId={{f5}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"products",
+								""
+							],
+							"query": [
+								{
+									"key": "title",
+									"value": "{{f2}}"
+								},
+								{
+									"key": "price_min",
+									"value": "{{f3}}"
+								},
+								{
+									"key": "price_max",
+									"value": "{{f4}}"
+								},
+								{
+									"key": "categoryId",
+									"value": "{{f5}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Price Range and Category with Pagination",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pools for random values\r",
+									"const digits = \"0123456789\";\r",
+									"const letters = \"abcdefghijklmnopqrstuvwxyz\";\r",
+									"const specials = \"!@#$%^&*\";\r",
+									"\r",
+									"// Helper to pick one random char\r",
+									"function pick(str) {\r",
+									"    return str.charAt(Math.floor(Math.random() * str.length));\r",
+									"}\r",
+									"\r",
+									"// f5 → single letter + single special character\r",
+									"pm.variables.set(\"f6\", pick(letters) + pick(specials));\r",
+									"\r",
+									"// f6 → single letter + single special character\r",
+									"pm.variables.set(\"f7\", pick(letters) + pick(specials));\r",
+									"\r",
+									"// f7 → single letter + single special character\r",
+									"pm.variables.set(\"f8\", pick(letters) + pick(specials));\r",
+									"\r",
+									"// f8 → single digit + single special character\r",
+									"pm.variables.set(\"f9\", pick(digits) + pick(specials));\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 1) Assert: 400 Bad Request\r",
+									"pm.test(\"Status is 400 Bad Request\", function () {\r",
+									"  pm.response.to.have.status(400);\r",
+									"  pm.expect(pm.response.status).to.equal(\"Bad Request\");\r",
+									"});\r",
+									"\r",
+									"// 3) Print raw response body to console\r",
+									"const _raw = pm.response.text();\r",
+									"console.log(\"📩 Raw response body:\", _raw);\r",
+									"\r",
+									"// Parse JSON safely into let f3d3\r",
+									"let f3d3 = null;\r",
+									"try {\r",
+									"  f3d3 = pm.response.json();\r",
+									"} catch (e) {\r",
+									"  f3d3 = null;\r",
+									"}\r",
+									"\r",
+									"// 2) Validate expected JSON shape: { \"error\": \"Bad Request\", \"statusCode\": 400 }\r",
+									"pm.test(\"Response JSON has expected error fields\", function () {\r",
+									"  pm.expect(f3d3, \"Response must be valid JSON\").to.be.an(\"object\");\r",
+									"  pm.expect(f3d3).to.have.property(\"error\", \"Bad Request\");\r",
+									"  pm.expect(f3d3).to.have.property(\"statusCode\", 400);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/products?price_min={{f6}}&price_max={{f7}}&categoryId={{f8}}&limit=!&offset={{f9}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"products"
+							],
+							"query": [
+								{
+									"key": "price_min",
+									"value": "{{f6}}"
+								},
+								{
+									"key": "price_max",
+									"value": "{{f7}}"
+								},
+								{
+									"key": "categoryId",
+									"value": "{{f8}}"
+								},
+								{
+									"key": "limit",
+									"value": "!"
+								},
+								{
+									"key": "offset",
+									"value": "{{f9}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Price Range with Pagination",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pools for random values\r",
+									"const digits   = \"0123456789\";\r",
+									"const letters  = \"abcdefghijklmnopqrstuvwxyz\";\r",
+									"const specials = \"!@#$%^&*\";\r",
+									"\r",
+									"// Helper to pick one random char from a pool\r",
+									"function pick(str) {\r",
+									"    return str.charAt(Math.floor(Math.random() * str.length));\r",
+									"}\r",
+									"\r",
+									"// f10 → single random value (digit, letter, or special)\r",
+									"pm.variables.set(\"f10\", pick(digits + letters + specials));\r",
+									"\r",
+									"// f11 → single random value\r",
+									"pm.variables.set(\"f11\", pick(digits + letters + specials));\r",
+									"\r",
+									"// f12 → single random value\r",
+									"pm.variables.set(\"f12\", pick(digits + letters + specials));\r",
+									"\r",
+									"// f13 → single random value\r",
+									"pm.variables.set(\"f13\", pick(digits + letters + specials));\r",
+									"\r",
+									"// Log values for visibility\r",
+									"console.log(\"🎯 f10:\", pm.variables.get(\"f10\"));\r",
+									"console.log(\"🎯 f11:\", pm.variables.get(\"f11\"));\r",
+									"console.log(\"🎯 f12:\", pm.variables.get(\"f12\"));\r",
+									"console.log(\"🎯 f13:\", pm.variables.get(\"f13\"));"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 1) Assert: 400 Bad Request\r",
+									"pm.test(\"Status is 400 Bad Request\", function () {\r",
+									"  pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"// 3) Print raw response body to console\r",
+									"console.log(\"🔎 Response body:\", pm.response.text());\r",
+									"\r",
+									"// 2) Parse (keep) + minimal validation\r",
+									"let f4d6;  // <- your requested variable name\r",
+									"try {\r",
+									"  f4d6 = pm.response.json();\r",
+									"} catch (e) {\r",
+									"  f4d6 = null;\r",
+									"}\r",
+									"\r",
+									"// Minimal shape check (no strict field/value assertions)\r",
+									"pm.test(\"Response is JSON object (when present)\", function () {\r",
+									"  const raw = (pm.response.text() || \"\").trim();\r",
+									"  if (raw.length > 0) {\r",
+									"    pm.expect(f4d6, \"Expected a JSON object in response\").to.be.an(\"object\");\r",
+									"  }\r",
+									"});\r",
+									"\r",
+									"// (Removed) Exact field validations:\r",
+									"// pm.test('Payload has {\"error\":\"Bad Request\",\"statusCode\":400}', ...\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseurl}}/products?price_min={{f10}}&price_max={{f11}}&limit={{f12}}&offset={{f13}}",
+							"host": [
+								"{{baseurl}}"
+							],
+							"path": [
+								"products"
+							],
+							"query": [
+								{
+									"key": "price_min",
+									"value": "{{f10}}"
+								},
+								{
+									"key": "price_max",
+									"value": "{{f11}}"
+								},
+								{
+									"key": "limit",
+									"value": "{{f12}}"
+								},
+								{
+									"key": "offset",
+									"value": "{{f13}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users unhappy path",
+			"item": [
+				{
+					"name": "Create a User",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pre-request Script (attach this to the request)\r",
+									"\r",
+									"// 1) Pull fields from the Runner's CSV/JSON data file\r",
+									"const name = pm.iterationData.get(\"name\");\r",
+									"const email = pm.iterationData.get(\"email\");\r",
+									"const password = pm.iterationData.get(\"password\");\r",
+									"\r",
+									"// 2) Build a minimal payload (negative data comes from the file)\r",
+									"//    Keep avatar fixed so only name/email/password vary.\r",
+									"const payload = {\r",
+									"  name: name,\r",
+									"  email: email,\r",
+									"  password: password,\r",
+									"  avatar: \"https://picsum.photos/800\"\r",
+									"};\r",
+									"\r",
+									"// 3) Ensure JSON Content-Type (in case header is missing)\r",
+									"if (!pm.request.headers.has(\"Content-Type\")) {\r",
+									"  pm.request.headers.add({ key: \"Content-Type\", value: \"application/json\" });\r",
+									"}\r",
+									"\r",
+									"// 4) Inject the body (raw -> JSON)\r",
+									"pm.request.body.update(JSON.stringify(payload, null, 2));\r",
+									"\r",
+									"// 5) Optional: log for quick visibility while iterating\r",
+									"console.log(\"🚫 Negative case payload:\", payload);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 1) Assert: 400 Bad Request\r",
+									"pm.test(\"Status is 400 Bad Request\", function () {\r",
+									"  pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"// 2) Parse body (use requested variable name)\r",
+									"let z1l1 = null;\r",
+									"try {\r",
+									"  z1l1 = pm.response.json();\r",
+									"} catch (e) {\r",
+									"  z1l1 = null;\r",
+									"}\r",
+									"\r",
+									"// 3) Validate expected error payload\r",
+									"pm.test('Body matches { error: \"Bad Request\", statusCode: 400 }', function () {\r",
+									"  pm.expect(z1l1, \"Response should be JSON\").to.be.an(\"object\");\r",
+									"  pm.expect(z1l1).to.have.property(\"error\", \"Bad Request\");\r",
+									"  pm.expect(z1l1).to.have.property(\"statusCode\", 400);\r",
+									"});\r",
+									"\r",
+									"// 4) Print response body to console\r",
+									"if (z1l1) {\r",
+									"  console.log(\"❗ 400 response JSON:\", z1l1);\r",
+									"} else {\r",
+									"  console.log(\"❗ 400 response (non-JSON):\", pm.response.text());\r",
+									"}\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"{{name}}\",\r\n  \"email\": \"{{email}}\",\r\n  \"password\": \"{{password}}\",\r\n  \"avatar\": \"https://picsum.photos/800\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://api.escuelajs.co/api/v1/users/",
+							"protocol": "https",
+							"host": [
+								"api",
+								"escuelajs",
+								"co"
+							],
+							"path": [
+								"api",
+								"v1",
+								"users",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "UpdateTitle",
+			"value": ""
+		}
+	]
+}

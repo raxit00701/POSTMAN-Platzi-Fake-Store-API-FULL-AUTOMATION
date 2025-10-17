@@ -1,0 +1,1 @@
+{"id":240,"email":"sara.roy808718@gmail.com","password":"Sararo6885","name":"Sara Roy","role":"customer","avatar":"https://picsum.photos/800","creationAt":"2025-10-17T14:03:29.000Z","updatedAt":"2025-10-17T14:03:29.000Z"}

@@ -1,0 +1,1 @@
+{"path":"/api/v1/categories/","timestamp":"2025-10-17T14:03:12.237Z","name":"QueryFailedError","message":"SqliteError: UNIQUE constraint failed: category.slug","code":"SQLITE_CONSTRAINT_UNIQUE"}

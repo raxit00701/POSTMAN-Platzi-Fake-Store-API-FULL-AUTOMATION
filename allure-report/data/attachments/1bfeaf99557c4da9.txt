@@ -1,0 +1,1 @@
+{"message":["name should not be empty","password must contain only letters and numbers"],"error":"Bad Request","statusCode":400}

@@ -1,0 +1,21 @@
+name,email,password
+,user@example.com,Password123!
+   ,user@example.com,Password123!
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA,user@example.com,Password123!
+Nicolás 😀,user@example.com,Password123!
+Nicolas,,Password123!
+Nicolas,plainaddress,Password123!
+Nicolas,user@@example.com,Password123!
+Nicolas,user@.com,Password123!
+Nicolas,user@example,Password123!
+Nicolas,user example@example.com,Password123!
+Nicolas,user@example..com,Password123!
+Nicolas,user@-example.com,Password123!
+Nicolas,user@example-.com,Password123!
+Nicolas,user@exam_ple.com,Password123!
+Nicolas,user@example.com,
+Nicolas,user@example.com,
+Nicolas,user@example.com,          
+Nicolas,user@example.com,' OR '1'='1
+Nicolas,user@example.com,пароль
+Nicolas,user@example.com,🙂🙂🙂

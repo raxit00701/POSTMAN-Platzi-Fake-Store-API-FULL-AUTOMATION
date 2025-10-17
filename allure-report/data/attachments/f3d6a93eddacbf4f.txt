@@ -1,0 +1,6 @@
+{
+  "name": "Nicolas",
+  "email": "user@example.com",
+  "password": "' OR '1'='1",
+  "avatar": "https://picsum.photos/800"
+}

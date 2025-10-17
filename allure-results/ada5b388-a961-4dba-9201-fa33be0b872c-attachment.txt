@@ -1,0 +1,7 @@
+{
+  "title": "Wireless0 Earbuds",
+  "price": 35,
+  "description": "A description",
+  "categoryId": 10,
+  "images": ["https://placehold.co/600x400"]
+}

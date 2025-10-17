@@ -1,0 +1,6 @@
+{
+  "name": "Sara Roy",
+  "email": "sara.roy808718@gmail.com",
+  "password": "Sararo6885",
+  "avatar": "https://picsum.photos/800"
+}

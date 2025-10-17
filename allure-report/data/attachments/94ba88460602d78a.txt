@@ -1,0 +1,7 @@
+{
+  "title": "Portable4 Charger",
+  "price": 25,
+  "description": "A description",
+  "categoryId": 10,
+  "images": ["https://placehold.co/600x400"]
+}

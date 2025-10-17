@@ -1,0 +1,1 @@
+level: log, messages: ✅ Category response:,[object Object]

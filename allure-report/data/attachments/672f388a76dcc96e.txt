@@ -1,0 +1,1 @@
+{"message":["password must be longer than or equal to 4 characters","password must contain only letters and numbers"],"error":"Bad Request","statusCode":400}

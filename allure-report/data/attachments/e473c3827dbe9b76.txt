@@ -1,0 +1,3 @@
+level: log, messages: 📦 Filter by Category products are:,28
+level: log, messages: 🔎 Sample (first 3):,[object Object],[object Object],[object Object]
+level: log, messages: 💾 Saved (one value each):,[object Object]

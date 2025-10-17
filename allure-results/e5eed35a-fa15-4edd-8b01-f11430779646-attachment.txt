@@ -1,0 +1,10 @@
+{
+  "title": "Elegant Watch 798616-u7hw",
+  "price": 10,
+  "description": "A description",
+  "categoryId": 10,
+  "images": [
+    "https://placehold.co/600x400"
+  ],
+  "slug": "elegant-watch-798616-u7hw"
+}

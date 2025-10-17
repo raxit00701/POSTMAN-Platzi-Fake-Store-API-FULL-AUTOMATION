@@ -1,0 +1,5 @@
+level: log, messages: ➡️ limit:,1,offset:,0,price_min:,0,price_max:,92
+level: log, messages: ➡️ URL:,{{baseurl}}/products?price_min=0&price_max=92&limit=1&offset=0
+level: log, messages: 📦 Products count:,1
+level: log, messages: 🔎 Sample (first 3):,[object Object]
+level: log, messages: ✅ Full products payload:,[object Object]

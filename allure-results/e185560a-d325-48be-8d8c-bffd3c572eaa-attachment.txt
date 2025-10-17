@@ -1,0 +1,2 @@
+level: log, messages: 🏷️ name:,Eco Edition 0ors,🔗 slug:,eco-edition-0ors
+level: log, messages: ✅ Category response:,[object Object]

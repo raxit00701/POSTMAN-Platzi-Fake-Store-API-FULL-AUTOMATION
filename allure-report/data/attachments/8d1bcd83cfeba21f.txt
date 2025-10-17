@@ -1,0 +1,2 @@
+level: log, messages: {{c7}} =,""
+level: log, messages: Response body:,{"message":"Cannot DELETE /api/v1/categories/","error":"Not Found","statusCode":404}

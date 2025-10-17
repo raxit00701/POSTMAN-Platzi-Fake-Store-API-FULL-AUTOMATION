@@ -1,0 +1,8 @@
+{
+  "name": "QA",
+  "values": [
+    { "key": "baseurl", "value": "https://api.escuelajs.co/api/v1", "enabled": true },
+    { "key": "baseUrl", "value": "https://api.escuelajs.co/api/v1", "enabled": true }
+  ],
+  "_postman_variable_scope": "environment"
+}

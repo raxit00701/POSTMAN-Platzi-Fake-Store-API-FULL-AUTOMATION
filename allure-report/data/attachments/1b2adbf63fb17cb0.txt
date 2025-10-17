@@ -1,0 +1,7 @@
+{
+  "title": "Fitness3 Tracker",
+  "price": 80,
+  "description": "A description",
+  "categoryId": 10,
+  "images": ["https://placehold.co/600x400"]
+}

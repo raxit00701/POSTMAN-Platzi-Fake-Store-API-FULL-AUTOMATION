@@ -1,0 +1,6 @@
+{
+  "name": "Nicolas",
+  "email": "",
+  "password": "Password123!",
+  "avatar": "https://picsum.photos/800"
+}

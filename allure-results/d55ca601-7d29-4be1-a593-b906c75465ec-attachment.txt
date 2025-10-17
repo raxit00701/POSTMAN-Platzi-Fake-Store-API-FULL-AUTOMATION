@@ -1,0 +1,4 @@
+level: warn, messages: Using "data" is deprecated. Use "pm.iterationData" instead.
+level: log, messages: 📦 Title from CSV:,Desk5 Organizer
+level: log, messages: 💲 Price from CSV:,12
+level: log, messages: 📌 Captured csv id:,865

@@ -1,0 +1,4 @@
+level: warn, messages: Using "data" is deprecated. Use "pm.iterationData" instead.
+level: log, messages: 📦 Title from CSV:,
+level: log, messages: 💲 Price from CSV:,
+level: warn, messages: ⚠️ No id found in response to capture

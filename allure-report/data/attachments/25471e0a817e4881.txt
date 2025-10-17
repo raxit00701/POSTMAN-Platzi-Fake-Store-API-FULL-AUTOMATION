@@ -1,0 +1,1 @@
+{"id":240,"email":"sarah.lee83@mail.com","password":"Sararo6885","name":"Sarah Lee","role":"customer","avatar":"https://picsum.photos/800","creationAt":"2025-10-17T14:03:29.000Z","updatedAt":"2025-10-17T14:03:30.000Z"}
