@@ -3,6 +3,15 @@
 A fully automated **Platzi Fake Store  API testing framework** built using **Postman**, **Newman CLI**, and **Jenkins CI/CD** — featuring data-driven testing, environment-driven executions, JSON schema validations, and dual HTML + Allure reporting.
 
 ---
+## License
+
+This project is proprietary and protected by copyright.
+
+**All Rights Reserved © 2026 Raxit Sharma**
+
+No permission is granted to use, copy, modify, distribute, or create
+derivative works from this code without explicit written permission.
+
 
 ## 📘 Overview
 
